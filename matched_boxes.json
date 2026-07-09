@@ -1,0 +1,44 @@
+{
+  "boxes": [
+    {
+      "id": 1,
+      "x": 125,
+      "y": 419,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 2,
+      "x": 732,
+      "y": 1070,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 3,
+      "x": 246,
+      "y": 1329,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 4,
+      "x": 318,
+      "y": 1590,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 5,
+      "x": -5,
+      "y": 1847,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    }
+  ]
+}
