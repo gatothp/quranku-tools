@@ -1,0 +1,92 @@
+{
+  "boxes": [
+    {
+      "id": 1,
+      "x": 896,
+      "y": 166,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 2,
+      "x": 284,
+      "y": 298,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 3,
+      "x": -4,
+      "y": 426,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 4,
+      "x": 831,
+      "y": 687,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 5,
+      "x": 245,
+      "y": 817,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 6,
+      "x": 181,
+      "y": 939,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 7,
+      "x": 287,
+      "y": 1076,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 8,
+      "x": 164,
+      "y": 1338,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 9,
+      "x": 531,
+      "y": 1594,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 10,
+      "x": 652,
+      "y": 1728,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    },
+    {
+      "id": 11,
+      "x": -5,
+      "y": 1856,
+      "width": 98,
+      "height": 98,
+      "ayah_number": ""
+    }
+  ]
+}

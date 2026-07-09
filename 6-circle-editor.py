@@ -1,10 +1,44 @@
 import cv2
 import json
 import os
+import openpyxl
 
 IMAGE_PATH = "mushaf/p005.jpg"
 BOXES_JSON = "matched_boxes.json"
 OUTPUT_JSON = "circle_numbers.json"
+EXCEL_PATH = "files/quran.xlsx"
+
+# Extract page number from image path
+page_num = int(IMAGE_PATH.split("/")[-1][1:4])
+
+# Load and validate against Excel
+try:
+    wb = openpyxl.load_workbook(EXCEL_PATH)
+    sheet = wb['hal-ayat']
+    expected_ayat = None
+    
+    for row in sheet.iter_rows(min_row=2, values_only=True):
+        if row[0] == page_num:
+            expected_ayat = row[1]
+            break
+except Exception as e:
+    print(f"⚠️  Could not load Excel file: {e}")
+    expected_ayat = None
+
+# Load boxes
+with open(BOXES_JSON, "r") as f:
+    data = json.load(f)
+    boxes = data["boxes"]
+
+# Validate circle count
+detected_circles = len(boxes)
+if expected_ayat:
+    if detected_circles == expected_ayat:
+        print(f"✅ Page {page_num}: {detected_circles} circles detected (matches {expected_ayat} ayat in Excel)")
+    else:
+        print(f"⚠️  Page {page_num}: {detected_circles} circles detected but {expected_ayat} ayat expected")
+else:
+    print(f"ℹ️  Page {page_num}: {detected_circles} circles detected")
 
 # Load boxes
 with open(BOXES_JSON, "r") as f:
@@ -67,6 +101,9 @@ def draw_boxes():
     return temp
 
 cv2.namedWindow("Circle Editor")
+
+print(f"✅ Loaded {len(scaled_boxes)} circles from {BOXES_JSON}")
+print()
 
 while True:
     cv2.imshow("Circle Editor", draw_boxes())
