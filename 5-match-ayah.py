@@ -45,40 +45,8 @@ else:
         exit(1)
 
 def extract_number_from_circle(gray_img, x, y, w, h):
-    """Extract the number inside the circle using Tesseract"""
-    try:
-        if not TESSERACT_PATH:
-            return ""
-        
-        # Extract center region of circle (where number should be)
-        roi = gray_img[max(0, y+h//4):min(gray_img.shape[0], y+3*h//4), 
-                       max(0, x+w//4):min(gray_img.shape[1], x+3*w//4)]
-        
-        if roi.size < 10:
-            return ""
-        
-        # Invert and threshold
-        _, binary = cv2.threshold(255 - roi, 100, 255, cv2.THRESH_BINARY)
-        
-        # Call Tesseract directly via subprocess
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
-            cv2.imwrite(tmp.name, binary)
-            try:
-                result = subprocess.run(
-                    [TESSERACT_PATH, tmp.name, 'stdout', '-l', 'ara', '--psm', '8'],
-                    capture_output=True,
-                    text=True,
-                    timeout=5
-                )
-                text = result.stdout.strip()
-                os.unlink(tmp.name)
-                return text if text else ""
-            except:
-                if os.path.exists(tmp.name):
-                    os.unlink(tmp.name)
-                return ""
-    except:
-        return ""
+    """Placeholder - no longer used, values come from Excel"""
+    return ""
 
 # Process each page in the range
 for page_num in page_range:
@@ -88,6 +56,26 @@ for page_num in page_range:
     EXCEL_PATH = "files/quran.xlsx"
     
     print(f"\n📖 Processing page {page_num}...")
+    
+    # Load surah mapping from Excel
+    surah_map = {}  # ayat_number -> surat_number
+    try:
+        wb = openpyxl.load_workbook(EXCEL_PATH)
+        sheet = wb['Quran Pages']
+        
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            if row[4] == page_num:  # Column E is page (index 4)
+                surat = row[0]  # Column A is surah (index 0)
+                start_ayat = row[2]  # Column C is start ayat (index 2)
+                end_ayat = row[3]  # Column D is end ayat (index 3)
+                
+                if start_ayat and end_ayat:
+                    for ayat_num in range(int(start_ayat), int(end_ayat) + 1):
+                        surah_map[ayat_num] = surat
+        
+        print(f"✅ Loaded surah mapping: {surah_map}")
+    except Exception as e:
+        print(f"⚠️  Could not load surah mapping from Excel: {e}")
     
     img = cv2.imread(IMAGE_PATH)
     if img is None:
@@ -108,6 +96,33 @@ for page_num in page_range:
     
     results = []
     seen = []
+    
+    # Get ayat range for this page from Excel
+    ayat_range = []
+    try:
+        wb = openpyxl.load_workbook(EXCEL_PATH)
+        sheet = wb['Quran Pages']
+        
+        for row in sheet.iter_rows(min_row=2, values_only=True):
+            if row[4] == page_num:  # Column E is page (index 4)
+                start_ayat = row[2]  # Column C is start ayat (index 2)
+                end_ayat = row[3]  # Column D is end ayat (index 3)
+                surat = row[0]  # Column A is surah (index 0)
+                
+                if start_ayat and end_ayat:
+                    ayat_range.append((int(start_ayat), int(end_ayat), surat))
+        
+        print(f"✅ Page {page_num} ayat ranges: {ayat_range}")
+    except Exception as e:
+        print(f"⚠️  Could not load ayat ranges from Excel: {e}")
+    
+    # Flatten ayat_range into a list of (ayat_num, surat_num) tuples, sorted by position
+    all_ayats = []
+    for start, end, surat in ayat_range:
+        for ayat_num in range(start, end + 1):
+            all_ayats.append((ayat_num, surat))
+    
+    ayat_index = 0  # Track which ayat we're on
     
     for scale in scales:
         resized = cv2.resize(gray, None, fx=scale, fy=scale)
@@ -142,17 +157,38 @@ for page_num in page_range:
             
             seen.append((x, y))
             
-            # Extract Arabic number from circle
-            ayah_number = extract_number_from_circle(gray, x, y, w, h)
-            
             results.append({
                 "id": len(results) + 1,
                 "x": x,
                 "y": y,
                 "width": w,
                 "height": h,
-                "ayah_number": ayah_number
+                "surat": 0,
+                "ayat": 0
             })
+    
+    # Sort results: top to bottom, but within each line sort right to left
+    # Group boxes by Y-coordinate (same line) with tolerance
+    def get_line_group(box):
+        # Group boxes into lines (every ~60-80 pixels in height)
+        return box["y"] // 80
+    
+    # First sort by line, then by X position (right to left)
+    results.sort(key=lambda box: (get_line_group(box), -box["x"]))
+    
+    # Assign ayat numbers based on sorted order
+    for i, result in enumerate(results):
+        if i < len(all_ayats):
+            ayat_num, surat_num = all_ayats[i]
+            result["ayat"] = ayat_num
+            result["surat"] = surat_num
+        else:
+            result["ayat"] = 0
+            result["surat"] = 0
+    
+    # Assign IDs after sorting
+    for idx, result in enumerate(results, 1):
+        result["id"] = idx
     
     # Save results
     if not TESSERACT_PATH:
@@ -181,5 +217,7 @@ for page_num in page_range:
             print(f"⚠️  Validation: {len(results)} detected but {expected_ayat} ayat expected")
     else:
         print(f"ℹ️  {len(results)} circles detected")
+    
+    print(f"✅ Saved to {OUTPUT_JSON}")
 
 print(f"\n✅ Done!")
