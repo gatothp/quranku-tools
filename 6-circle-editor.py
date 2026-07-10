@@ -26,7 +26,7 @@ else:
 
 # Process each page
 for page_num in page_range:
-    IMAGE_PATH = f"mushaf/p{page_num:03d}.jpg"
+    IMAGE_PATH = f"D:\\apps\\android\\quran\\app\\src\\main\\assets\\files\\mushaf\\madinah_v2\\p{page_num:03d}.jpg"
     BOXES_JSON = f"bbox/p{page_num:03d}.json"
     OUTPUT_JSON = f"bbox/p{page_num:03d}.json"
     EXCEL_PATH = "files/quran.xlsx"

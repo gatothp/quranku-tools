@@ -2,25 +2,7 @@ import cv2
 import numpy as np
 import json
 import os
-import subprocess
-import tempfile
 import openpyxl
-
-# Try multiple possible Tesseract paths
-possible_paths = [
-    r'C:\Program Files\Tesseract-OCR\tesseract.exe',
-    r'C:\Program Files (x86)\Tesseract-OCR\tesseract.exe',
-    r'C:\Users\User\AppData\Local\Tesseract-OCR\tesseract.exe',
-]
-
-TESSERACT_PATH = None
-for path in possible_paths:
-    if os.path.exists(path):
-        TESSERACT_PATH = path
-        break
-
-if not TESSERACT_PATH:
-    print(f"⚠️  Tesseract executable not found at expected locations")
 
 # Create bbox directory if it doesn't exist
 os.makedirs("bbox", exist_ok=True)
@@ -45,13 +27,13 @@ else:
         exit(1)
 
 def extract_number_from_circle(gray_img, x, y, w, h):
-    """Placeholder - no longer used, values come from Excel"""
+    """Values come from Excel file, not OCR"""
     return ""
 
 # Process each page in the range
 for page_num in page_range:
-    IMAGE_PATH = f"mushaf/p{page_num:03d}.jpg"
-    TEMPLATE_PATH = "mushaf/circle.png"
+    IMAGE_PATH = f"D:\\apps\\android\\quran\\app\\src\\main\\assets\\files\\mushaf\\madinah_v2\\p{page_num:03d}.jpg"
+    TEMPLATE_PATH = "files/circle.png"
     OUTPUT_JSON = f"bbox/p{page_num:03d}.json"
     EXCEL_PATH = "files/quran.xlsx"
     
@@ -72,8 +54,7 @@ for page_num in page_range:
                 if start_ayat and end_ayat:
                     for ayat_num in range(int(start_ayat), int(end_ayat) + 1):
                         surah_map[ayat_num] = surat
-        
-        print(f"✅ Loaded surah mapping: {surah_map}")
+        # print(f"✅ Loaded surah mapping: {surah_map}")
     except Exception as e:
         print(f"⚠️  Could not load surah mapping from Excel: {e}")
     
@@ -110,7 +91,7 @@ for page_num in page_range:
                 surat = row[0]  # Column A is surah (index 0)
                 
                 if start_ayat and end_ayat:
-                    ayat_range.append((int(start_ayat), int(end_ayat), surat))
+                    ayat_range.append((surat, int(start_ayat), int(end_ayat)))
         
         print(f"✅ Page {page_num} ayat ranges: {ayat_range}")
     except Exception as e:
@@ -118,7 +99,7 @@ for page_num in page_range:
     
     # Flatten ayat_range into a list of (ayat_num, surat_num) tuples, sorted by position
     all_ayats = []
-    for start, end, surat in ayat_range:
+    for surat, start, end in ayat_range:
         for ayat_num in range(start, end + 1):
             all_ayats.append((ayat_num, surat))
     
@@ -191,9 +172,6 @@ for page_num in page_range:
         result["id"] = idx
     
     # Save results
-    if not TESSERACT_PATH:
-        print("⚠️  Tesseract not found - ayah_number fields will be empty.")
-        
     with open(OUTPUT_JSON, "w") as f:
         json.dump({"page": page_num, "boxes": results}, f, ensure_ascii=False, indent=2)
     
@@ -218,6 +196,4 @@ for page_num in page_range:
     else:
         print(f"ℹ️  {len(results)} circles detected")
     
-    print(f"✅ Saved to {OUTPUT_JSON}")
-
 print(f"\n✅ Done!")
