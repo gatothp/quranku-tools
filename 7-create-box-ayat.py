@@ -1,21 +1,18 @@
 """
-Create expanded bounding boxes for complete ayahs (verses).
+Create bounding boxes for complete ayahs (verses) based on marker positions.
 
 Layout rules (Quran page, RTL):
 - Page has 15 lines, read top-to-bottom, right-to-left within each line.
-- Each ayah marker (circle) sits ON the line where that ayah ENDS.
-- An ayah's region starts right after the PREVIOUS ayah marker and ends at THIS ayah marker.
+- Each ayah marker (circle number) indicates where that ayah ENDS.
+- Each marker has a bounding box (x, y, width, height) that defines the marker's visual position.
 
-Box representation (simplified as list of line-strips):
-  For each ayah, we produce a list of per-line rectangles that together cover
-  the full ayah text. These are also stored as a bounding envelope for easy use.
-
-Visual rule derived from reference images:
-  - The PREVIOUS ayah's marker X position is the RIGHT boundary of THIS ayah's
-    START portion (same line as previous marker).
-  - On lines fully inside the ayah, the box is full-width.
-  - On the last line (where THIS ayah's marker sits), the box goes from the
-    RIGHT edge down to THIS marker's X (left boundary = 0, right = marker_x + marker_w).
+Box generation:
+- Each ayah spans vertically from the current marker's Y to the next marker's Y.
+- For each line in that vertical range, create ONE box per ayah.
+- Horizontal extent is determined by marker positions:
+  - First line (where previous marker appears): from marker_right to img_width
+  - Marker line (where current marker appears): from 0 to marker_x
+  - Other lines: full width (0 to img_width)
 """
 
 import cv2
@@ -48,149 +45,97 @@ def get_image(page_num):
 
 # ── core algorithm ───────────────────────────────────────────────────────────
 
-def assign_lines(boxes, img_h, img_w, lines_per_page=15):
-    """
-    Assign markers to physical lines on the page.
-    
-    The page is divided into 15 equal-height lines.
-    Each marker is assigned to the line containing its Y position.
-    """
-    if not boxes:
-        return [0, img_h], {}
-
-    # Calculate line height for 15 lines per page
-    line_height = img_h / lines_per_page
-    
-    # Assign each marker to a line based on its Y position
-    box_line = {}
-    for b in boxes:
-        line_idx = int(b["y"] / line_height)
-        # Clamp to valid range
-        line_idx = max(0, min(lines_per_page - 1, line_idx))
-        box_line[b["id"]] = line_idx
-    
-    # Build line_tops array (top boundary of each line)
-    line_tops = [i * line_height for i in range(lines_per_page + 1)]
-    
-    return line_tops, box_line
-
-
 def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
     """
-    Build bounding boxes for ayahs - ONE BOX PER LINE PER AYAH.
-    
-    Each ayah can span multiple lines and gets ONE BOX PER LINE.
-    - If ayah spans lines 0-1, it gets 2 boxes: one on line 0, one on line 1
-    - Each box covers the full width of its line (except when constrained by markers)
-    - If multiple ayahs share a line, use marker X positions to split vertically
-    
-    Layout rules:
-    - Ayah X ends where marker X is located
-    - Ayah X starts after the previous ayah's marker
-    - Shared line: split at marker X positions
+    Build bounding boxes for ayahs using bbox marker positions.
+
+    Each ayah number circle marks where that ayah ENDS.
+    - The circle BELONGS to the next ayah's rectangle (appears at its left boundary).
+    - Vertical span: from the line the PREVIOUS marker is on, to the line THIS marker is on.
+    - On the previous-marker line : box starts at prev_marker_x (left of prev circle) → full right
+    - On the current-marker line  : box starts at 0 → cur_marker_x (left of cur circle)
+    - On lines between            : full width
     """
-    line_tops, box_line = assign_lines(boxes, img_h, img_w, lines_per_page)
+    line_height = img_h / lines_per_page
 
-    # Sort by top-to-bottom, then right-to-left within line for reading order
-    sorted_boxes = sorted(boxes, key=lambda b: (box_line[b["id"]], -b["x"]))
+    def marker_line(b):
+        """Line index the centre of marker b sits on."""
+        return int((b["y"] + b["height"] / 2) / line_height)
 
-    # Group markers by line for easier processing
-    markers_by_line = {}
-    for box in sorted_boxes:
-        line_idx = box_line[box["id"]]
-        if line_idx not in markers_by_line:
-            markers_by_line[line_idx] = []
-        markers_by_line[line_idx].append(box)
-    
-    # Sort markers on each line by X position (left to right)
-    for line_idx in markers_by_line:
-        markers_by_line[line_idx].sort(key=lambda b: b["x"])
+    # Sort markers by actual reading order: surat then ayat
+    sorted_boxes = sorted(boxes, key=lambda b: (b.get("surat", 0), b.get("ayat", 0)))
 
     results = []
-    
+
     for idx, cur in enumerate(sorted_boxes):
-        cur_line = box_line[cur["id"]]
-        cur_marker_x = max(0, min(img_w, cur["x"]))
-        
-        # Get previous marker info
+        cur_line = marker_line(cur)
+        cur_x    = cur["x"]
+
         if idx == 0:
-            prev_line = -1
-            prev_marker_x = img_w  # Right edge for RTL
+            prev_line = -1          # virtual line above page
+            prev_x    = img_w       # no previous circle
         else:
-            prev = sorted_boxes[idx - 1]
-            prev_line = box_line[prev["id"]]
-            prev_marker_x = max(0, min(img_w, prev["x"]))
-        
-        # Determine line range for this ayah
-        # Ayah starts AFTER previous marker's line and ends at current marker's line
+            prev      = sorted_boxes[idx - 1]
+            prev_line = marker_line(prev)
+            prev_x    = prev["x"]
+
+        # Lines this ayah covers:
+        #   - If prev_line >= 0 and prev marker didn't consume the full line:
+        #       start at prev_line (partial box from prev circle leftward)
+        #   - Otherwise start at prev_line + 1
+        #   - End at cur_line
         if prev_line >= 0:
-            start_line = prev_line + 1
+            prev = sorted_boxes[idx - 1]
+            # If previous marker was at left edge (x<=0), it consumed the whole line
+            # so this ayah starts on the next line
+            if prev["x"] <= 0:
+                start_line = max(0, prev_line + 1)
+            else:
+                start_line = max(0, prev_line)
         else:
             start_line = 0
         end_line = cur_line
-        
-        # Create one box per line this ayah spans
+
+        if start_line > end_line:
+            start_line = end_line
+
         for line_idx in range(start_line, end_line + 1):
-            top_y = line_tops[line_idx]
-            bottom_y = line_tops[line_idx + 1]
-            
-            # Determine horizontal extent for this line
-            if line_idx == cur_line and line_idx in markers_by_line and len(markers_by_line[line_idx]) > 1:
-                # Current marker line has multiple markers: use neighbor positions for split
-                markers_on_line = markers_by_line[line_idx]
-                cur_pos = None
-                for pos, m in enumerate(markers_on_line):
-                    if m["id"] == cur["id"]:
-                        cur_pos = pos
-                        break
-                
-                if cur_pos is not None:
-                    if cur_pos > 0:
-                        # There's a marker to the left of this one
-                        left_marker_x = markers_on_line[cur_pos - 1]["x"]
-                        left_x = left_marker_x
-                    else:
-                        # This is the leftmost marker on this line
-                        left_x = 0
-                    
-                    if cur_pos < len(markers_on_line) - 1:
-                        # There's a marker to the right of this one
-                        right_marker_x = markers_on_line[cur_pos + 1]["x"]
-                        right_x = right_marker_x
-                    else:
-                        # This is the rightmost marker on this line
-                        right_x = img_w
-                else:
-                    # Shouldn't happen, but fallback to full width
-                    left_x = 0
-                    right_x = img_w
-            elif line_idx == cur_line and prev_line == cur_line:
-                # Current line has this marker and previous marker: split between them
-                left_x = cur_marker_x
-                right_x = prev_marker_x
-            else:
-                # Intermediate line or only marker on this line: full width
-                left_x = 0
+            top_y    = line_idx * line_height
+            bottom_y = (line_idx + 1) * line_height
+
+            if line_idx == prev_line and idx > 0:
+                # Previous-marker line: this ayah starts at left edge of prev circle
+                left_x  = max(0, prev_x)
                 right_x = img_w
-            
-            if right_x > left_x:  # Only add if valid width
+            elif line_idx == cur_line:
+                # Current-marker line: this ayah ends at left edge of cur circle
+                left_x  = 0
+                right_x = max(0, cur_x) if cur_x > 0 else img_w
+            else:
+                # Middle line: full width
+                left_x  = 0
+                right_x = img_w
+
+            left_x  = max(0, min(img_w, left_x))
+            right_x = max(0, min(img_w, right_x))
+
+            if right_x > left_x:
                 results.append({
                     "id":     cur["id"],
                     "surat":  cur.get("surat", 0),
                     "ayat":   cur.get("ayat", 0),
-                    "x":      left_x,
-                    "y":      top_y,
-                    "width":  right_x - left_x,
-                    "height": bottom_y - top_y,
+                    "x":      int(left_x),
+                    "y":      int(top_y),
+                    "width":  int(right_x - left_x),
+                    "height": int(bottom_y - top_y),
                 })
-    
-    results.sort(key=lambda r: (r["y"], -r["x"]))  # Sort by position top-to-bottom, right-to-left
+
     return results
 
 
 # ── visualisation ─────────────────────────────────────────────────────────────
 
-def visualize(page_num, img, results, line_tops):
+def visualize(page_num, img, results):
     """Draw each ayah box as a red rectangle."""
     overlay = img.copy()
 
@@ -222,7 +167,7 @@ def visualize(page_num, img, results, line_tops):
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def process_page(page_num, visualize_flag=True):
-    print(f"\n📖 Processing page {page_num} …")
+    print(f"\nProcessing page {page_num} ...")
 
     boxes = load_bbox(page_num)
     if boxes is None:
@@ -237,9 +182,6 @@ def process_page(page_num, visualize_flag=True):
     print(f"   Image: {img_w}×{img_h}  |  Markers: {len(boxes)}")
 
     results = build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15)
-
-    # Line tops for visualisation
-    line_tops, _ = assign_lines(boxes, img_h, img_w)
 
     for r in results:
         print(f"   Ayah {r['ayat']:>3}: box ({r['x']},{r['y']}) {r['width']}×{r['height']}")
@@ -269,7 +211,7 @@ def process_page(page_num, visualize_flag=True):
     print(f"💾 Saved → {out_path}")
 
     if visualize_flag:
-        visualize(page_num, img, results, line_tops)
+        visualize(page_num, img, results)
 
     return True
 
