@@ -1,18 +1,37 @@
 """
-Create bounding boxes for complete ayahs (verses) based on marker positions.
+SCRIPT: 6-create-box-ayat.py
+PURPOSE: Generate complete bounding boxes for each ayah (verse) based on ayah marker positions
 
-Layout rules (Quran page, RTL):
-- Page has 15 lines, read top-to-bottom, right-to-left within each line.
-- Each ayah marker (circle number) indicates where that ayah ENDS.
-- Each marker has a bounding box (x, y, width, height) that defines the marker's visual position.
+INPUT:
+  - User: Page number or range (e.g., "3" or "3-5")
+  - JSON: bbox/p###.json - Contains marker positions from circle detection (script 5)
+  - Image: Quran mushaf pages (jpg) from mushaf/ or madinah_v2 folder
 
-Box generation:
-- Each ayah spans vertically from the current marker's Y to the next marker's Y.
-- For each line in that vertical range, create ONE box per ayah.
-- Horizontal extent is determined by marker positions:
-  - First line (where previous marker appears): from marker_right to img_width
-  - Marker line (where current marker appears): from 0 to marker_x
-  - Other lines: full width (0 to img_width)
+LAYOUT RULES (Quran page, RTL):
+  - Page has 15 lines, read top-to-bottom, right-to-left within each line
+  - Each ayah marker (circle) indicates where that ayah ENDS
+  - Marker has bounding box (x, y, width, height) defining its visual position
+
+BOX GENERATION METHOD:
+  1. Sort markers by surat then ayat (reading order)
+  2. For each ayah, determine vertical span:
+     - Start: line of previous marker (or 0 if first ayah)
+     - End: line of current marker
+  3. For each line in span, create one box with horizontal extent:
+     - Previous-marker line: from prev_x to image_width (right side, RTL tail)
+     - Current-marker line: from 0 to marker_x (left side, RTL head)
+     - Middle lines: full width (0 to image_width)
+  4. Special case: if prev and cur markers on the SAME line:
+     - RIGHT box (prev_x → img_w) belongs to previous ayah
+     - LEFT box  (0 → cur_x)     belongs to current ayah
+  5. Clamp coordinates to image bounds
+
+OUTPUT:
+  - JSON: bbox_ayat/p###.json - Contains complete ayah boxes with:
+    * id, surat, ayat, x, y, width, height
+    * image_width, image_height (for reference)
+  - Image: bbox_ayat/p###_visualization.jpg - Red rectangles showing each ayah box
+  - Console: Box coordinates for each ayah
 """
 
 import cv2
@@ -20,7 +39,7 @@ import json
 import os
 from pathlib import Path
 
-os.makedirs("ayat_boxes", exist_ok=True)
+os.makedirs("bbox_ayat", exist_ok=True)
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -47,22 +66,25 @@ def get_image(page_num):
 
 def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
     """
-    Build bounding boxes for ayahs using bbox marker positions.
+    Build bounding boxes for ayahs using bbox marker positions (RTL layout).
 
     Each ayah number circle marks where that ayah ENDS.
-    - The circle BELONGS to the next ayah's rectangle (appears at its left boundary).
-    - Vertical span: from the line the PREVIOUS marker is on, to the line THIS marker is on.
-    - On the previous-marker line : box starts at prev_marker_x (left of prev circle) → full right
-    - On the current-marker line  : box starts at 0 → cur_marker_x (left of cur circle)
-    - On lines between            : full width
+    Reading order: right-to-left within a line, top-to-bottom across lines.
+
+    On a shared line where prev and cur markers meet:
+      - RIGHT part (prev_x → img_w): belongs to PREVIOUS ayah (its tail, read first RTL)
+      - LEFT part  (0 → cur_x):      belongs to CURRENT ayah (its head, read second RTL)
+
+    So for each ayah:
+      - prev-marker line : LEFT portion (0 → prev_x)    ← current ayah starts here
+      - middle lines     : full width (0 → img_w)
+      - cur-marker line  : RIGHT portion (cur_x → img_w) ← current ayah ends here (RTL tail)
     """
     line_height = img_h / lines_per_page
 
     def marker_line(b):
-        """Line index the centre of marker b sits on."""
         return int((b["y"] + b["height"] / 2) / line_height)
 
-    # Sort markers by actual reading order: surat then ayat
     sorted_boxes = sorted(boxes, key=lambda b: (b.get("surat", 0), b.get("ayat", 0)))
 
     results = []
@@ -72,30 +94,23 @@ def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
         cur_x    = cur["x"]
 
         if idx == 0:
-            prev_line = -1          # virtual line above page
-            prev_x    = img_w       # no previous circle
+            prev_line = -1
+            prev_x    = 0   # no previous marker: start from left edge
         else:
             prev      = sorted_boxes[idx - 1]
             prev_line = marker_line(prev)
             prev_x    = prev["x"]
 
-        # Lines this ayah covers:
-        #   - If prev_line >= 0 and prev marker didn't consume the full line:
-        #       start at prev_line (partial box from prev circle leftward)
-        #   - Otherwise start at prev_line + 1
-        #   - End at cur_line
+        # Determine start line
         if prev_line >= 0:
-            prev = sorted_boxes[idx - 1]
-            # If previous marker was at left edge (x<=0), it consumed the whole line
-            # so this ayah starts on the next line
-            if prev["x"] <= 0:
+            if sorted_boxes[idx - 1]["x"] <= 0:
                 start_line = max(0, prev_line + 1)
             else:
                 start_line = max(0, prev_line)
         else:
             start_line = 0
-        end_line = cur_line
 
+        end_line = cur_line
         if start_line > end_line:
             start_line = end_line
 
@@ -104,15 +119,17 @@ def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
             bottom_y = (line_idx + 1) * line_height
 
             if line_idx == prev_line and idx > 0:
-                # Previous-marker line: this ayah starts at left edge of prev circle
-                left_x  = max(0, prev_x)
-                right_x = img_w
-            elif line_idx == cur_line:
-                # Current-marker line: this ayah ends at left edge of cur circle
+                # Shared line with previous ayah:
+                # LEFT part (0 → prev_x) belongs to CURRENT ayah
                 left_x  = 0
-                right_x = max(0, cur_x) if cur_x > 0 else img_w
+                right_x = max(0, prev_x)
+            elif line_idx == cur_line:
+                # Last line of current ayah:
+                # RIGHT part (cur_x → img_w) belongs to CURRENT ayah (RTL tail)
+                left_x  = cur_x
+                right_x = img_w
             else:
-                # Middle line: full width
+                # Full-width middle line
                 left_x  = 0
                 right_x = img_w
 
@@ -154,7 +171,7 @@ def visualize(page_num, img, results):
                     (img.shape[1] - 40, y + 25),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.65, (200, 0, 0), 2)
 
-    vis_path = f"ayat_boxes/p{page_num:03d}_visualization.jpg"
+    vis_path = f"bbox_ayat/p{page_num:03d}_visualization.jpg"
     if Path(vis_path).exists():
         try:
             Path(vis_path).unlink()
@@ -183,11 +200,8 @@ def process_page(page_num, visualize_flag=True):
 
     results = build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15)
 
-    for r in results:
-        print(f"   Ayah {r['ayat']:>3}: box ({r['x']},{r['y']}) {r['width']}×{r['height']}")
-
-    out_path = f"ayat_boxes/p{page_num:03d}.json"
-    vis_path = f"ayat_boxes/p{page_num:03d}_visualization.jpg"
+    out_path = f"bbox_ayat/p{page_num:03d}.json"
+    vis_path = f"bbox_ayat/p{page_num:03d}_visualization.jpg"
 
     # Delete old JSON file to avoid lock/permission issues
     if Path(out_path).exists():
@@ -232,4 +246,4 @@ if __name__ == "__main__":
             print("❌ Invalid page number"); exit(1)
 
     ok = sum(process_page(p, visualize_flag=True) for p in page_range)
-    print(f"\n✅ Done: {ok}/{len(page_range)} pages → ayat_boxes/")
+    print(f"\n✅ Done: {ok}/{len(page_range)} pages → bbox_ayat/")

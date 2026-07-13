@@ -1,0 +1,131 @@
+{
+  "page": 602,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 767,
+      "y": 288,
+      "width": 97,
+      "height": 97,
+      "surat": 106,
+      "ayat": 1
+    },
+    {
+      "id": 2,
+      "x": 1091,
+      "y": 415,
+      "width": 97,
+      "height": 97,
+      "surat": 106,
+      "ayat": 2
+    },
+    {
+      "id": 3,
+      "x": 421,
+      "y": 418,
+      "width": 97,
+      "height": 97,
+      "surat": 106,
+      "ayat": 3
+    },
+    {
+      "id": 4,
+      "x": 197,
+      "y": 527,
+      "width": 97,
+      "height": 97,
+      "surat": 106,
+      "ayat": 4
+    },
+    {
+      "id": 5,
+      "x": 415,
+      "y": 930,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 1
+    },
+    {
+      "id": 7,
+      "x": 906,
+      "y": 1058,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 2
+    },
+    {
+      "id": 8,
+      "x": 136,
+      "y": 1061,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 3
+    },
+    {
+      "id": 9,
+      "x": 794,
+      "y": 1191,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 4
+    },
+    {
+      "id": 10,
+      "x": 1034,
+      "y": 1319,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 5
+    },
+    {
+      "id": 11,
+      "x": 536,
+      "y": 1322,
+      "width": 97,
+      "height": 97,
+      "surat": 107,
+      "ayat": 6
+    },
+    {
+      "id": 12,
+      "x": 48,
+      "y": 1319,
+      "width": 97,
+      "height": 97,
+      "surat": 108,
+      "ayat": 7
+    },
+    {
+      "id": 13,
+      "x": 548,
+      "y": 1719,
+      "width": 97,
+      "height": 97,
+      "surat": 108,
+      "ayat": 2
+    },
+    {
+      "id": 14,
+      "x": -9,
+      "y": 1719,
+      "width": 97,
+      "height": 97,
+      "surat": 108,
+      "ayat": 3
+    },
+    {
+      "id": 15,
+      "x": 275,
+      "y": 1846,
+      "width": 97,
+      "height": 97,
+      "surat": 0,
+      "ayat": 0
+    }
+  ]
+}

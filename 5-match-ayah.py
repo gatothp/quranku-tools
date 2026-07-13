@@ -1,3 +1,30 @@
+"""
+SCRIPT: 5-match-ayah.py
+PURPOSE: Automatically detect circle markers on Quran pages and match them to ayat (verse) numbers
+
+INPUT:
+  - User: Page number or range (e.g., "3" or "3-5")
+  - Image: Quran mushaf pages (jpg) from madinah_v2 folder
+  - Template: circle.png - template image for circle detection
+  - Excel: quran.xlsx - contains ayat ranges and page mappings
+
+METHOD:
+  1. Load Excel file to get ayat ranges for the page
+  2. Read Quran page image and convert to grayscale
+  3. Use template matching to detect circle markers at multiple scales (0.8-1.2x)
+  4. Filter duplicates based on proximity (20px threshold)
+  5. Expand bounding boxes by 40% for full circle coverage
+  6. Sort detected circles: top-to-bottom, right-to-left within each line
+  7. Assign ayat numbers sequentially based on sorted position
+  8. Validate count against Excel data
+
+OUTPUT:
+  - JSON: bbox/p###.json - Contains page number and detected circles with:
+    * id, x, y, width, height (bounding box)
+    * surat (chapter), ayat (verse) numbers
+  - Console: Detection summary and validation status
+"""
+
 import cv2
 import numpy as np
 import json
@@ -36,8 +63,6 @@ for page_num in page_range:
     TEMPLATE_PATH = "files/circle.png"
     OUTPUT_JSON = f"bbox/p{page_num:03d}.json"
     EXCEL_PATH = "files/quran.xlsx"
-    
-    print(f"\n📖 Processing page {page_num}...")
     
     # Load surah mapping from Excel
     surah_map = {}  # ayat_number -> surat_number

@@ -3,7 +3,7 @@ import json
 with open("bbox/p003.json") as f:
     boxes = json.load(f)["boxes"]
 
-with open("ayat_boxes/p003.json") as f:
+with open("bbox_ayat/p003.json") as f:
     results = json.load(f)["boxes"]
 
 print("Ayah assignments and markers:")

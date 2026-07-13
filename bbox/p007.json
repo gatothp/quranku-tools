@@ -1,92 +1,104 @@
 {
+  "page": 7,
   "boxes": [
     {
       "id": 1,
-      "x": 896,
-      "y": 166,
+      "x": 270,
+      "y": 175,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 38
     },
     {
       "id": 2,
-      "x": 284,
-      "y": 298,
+      "x": -9,
+      "y": 304,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 39
     },
     {
       "id": 3,
-      "x": -4,
-      "y": 426,
+      "x": 509,
+      "y": 563,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 40
     },
     {
       "id": 4,
-      "x": 831,
-      "y": 687,
+      "x": 600,
+      "y": 825,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 41
     },
     {
       "id": 5,
-      "x": 245,
-      "y": 817,
+      "x": 682,
+      "y": 956,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 42
     },
     {
       "id": 6,
-      "x": 181,
-      "y": 939,
+      "x": 545,
+      "y": 1084,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 43
     },
     {
       "id": 7,
-      "x": 287,
-      "y": 1076,
+      "x": -6,
+      "y": 1212,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 44
     },
     {
       "id": 8,
-      "x": 164,
-      "y": 1338,
+      "x": 1113,
+      "y": 1473,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 45
     },
     {
       "id": 9,
-      "x": 531,
-      "y": 1594,
+      "x": -5,
+      "y": 1473,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 46
     },
     {
       "id": 10,
-      "x": 652,
-      "y": 1728,
+      "x": 843,
+      "y": 1736,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 47
     },
     {
       "id": 11,
-      "x": -5,
-      "y": 1856,
+      "x": -13,
+      "y": 1862,
       "width": 98,
       "height": 98,
-      "ayah_number": ""
+      "surat": 2,
+      "ayat": 48
     }
   ]
 }
