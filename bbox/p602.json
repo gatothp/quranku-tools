@@ -97,7 +97,7 @@
       "y": 1319,
       "width": 97,
       "height": 97,
-      "surat": 108,
+      "surat": 107,
       "ayat": 7
     },
     {
@@ -107,7 +107,7 @@
       "width": 97,
       "height": 97,
       "surat": 108,
-      "ayat": 2
+      "ayat": 1
     },
     {
       "id": 14,
@@ -116,7 +116,7 @@
       "width": 97,
       "height": 97,
       "surat": 108,
-      "ayat": 3
+      "ayat": 2
     },
     {
       "id": 15,
@@ -124,8 +124,8 @@
       "y": 1846,
       "width": 97,
       "height": 97,
-      "surat": 0,
-      "ayat": 0
+      "surat": 108,
+      "ayat": 3
     }
   ]
 }
