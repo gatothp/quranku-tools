@@ -149,6 +149,7 @@ for page_num in page_range:
     number_input = ""
     confirming_delete = False
     editing_surat = False
+    editing_width = False
     
     # For boxes: create RTL-ordered index mapping
     rtl_order = list(range(len(scaled_boxes)))  # Default order
@@ -248,6 +249,21 @@ for page_num in page_range:
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
             cv2.putText(temp, "(ESC) Cancel", (panel_x, 190),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
+        elif editing_width:
+            cv2.putText(temp, f"Editing Width:", (panel_x, 40),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
+            cv2.putText(temp, f"Rectangle #{current_box_idx + 1}", (panel_x, 65),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+            cv2.putText(temp, f"Width: {number_input}_", (panel_x, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 255), 1)
+            cv2.putText(temp, f"Current: {scaled_boxes[current_box_idx]['width']}", (panel_x, 115),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (200, 200, 200), 1)
+            cv2.putText(temp, "(ENTER) Confirm", (panel_x, 150),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
+            cv2.putText(temp, "(DEL) Clear", (panel_x, 170),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
+            cv2.putText(temp, "(ESC) Cancel", (panel_x, 190),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
         elif editing:
             cv2.putText(temp, f"Editing:", (panel_x, 40),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 1)
@@ -286,15 +302,17 @@ for page_num in page_range:
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
             cv2.putText(temp, "(R) Edit Surat", (panel_x, 190),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-            cv2.putText(temp, "(W/P) Previous", (panel_x, 210),
+            cv2.putText(temp, "(W) Edit Width", (panel_x, 210),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-            cv2.putText(temp, "(N) Next", (panel_x, 230),
+            cv2.putText(temp, "(P) Previous", (panel_x, 230),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-            cv2.putText(temp, "(D) Delete", (panel_x, 250),
+            cv2.putText(temp, "(N) Next", (panel_x, 250),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
+            cv2.putText(temp, "(D) Delete", (panel_x, 270),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
-            cv2.putText(temp, "(S) Save", (panel_x, 270),
+            cv2.putText(temp, "(S) Save", (panel_x, 290),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-            cv2.putText(temp, "(ESC) Exit", (panel_x, 290),
+            cv2.putText(temp, "(ESC) Exit", (panel_x, 310),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
         
         return temp
@@ -335,10 +353,24 @@ for page_num in page_range:
             elif key == 27:  # ESC
                 editing_surat = False
                 number_input = ""
-            else:
-                # Accept digit input
-                if 48 <= key <= 57:  # 0-9
-                    number_input += chr(key)
+            elif 48 <= key <= 57:  # 0-9
+                number_input += chr(key)
+        
+        elif editing_width:
+            if key == 13:  # Enter
+                scaled_boxes[current_box_idx]["width"] = int(number_input) if number_input else scaled_boxes[current_box_idx]["width"]
+                editing_width = False
+                number_input = ""
+                print(f"✅ Rectangle {current_box_idx + 1}: width = {scaled_boxes[current_box_idx]['width']}")
+            elif key == 8:  # Backspace
+                number_input = number_input[:-1]
+            elif key == 46:  # Delete key
+                number_input = ""
+            elif key == 27:  # ESC
+                editing_width = False
+                number_input = ""
+            elif 48 <= key <= 57:  # 0-9
+                number_input += chr(key)
         
         elif editing:
             if key == 13:  # Enter
@@ -351,10 +383,8 @@ for page_num in page_range:
             elif key == 27:  # ESC
                 editing = False
                 number_input = ""
-            else:
-                # Accept digit input
-                if 48 <= key <= 57:  # 0-9
-                    number_input += chr(key)
+            elif 48 <= key <= 57:  # 0-9
+                number_input += chr(key)
         else:
             if key == ord("e"):  # Edit
                 number_input = str(scaled_boxes[current_box_idx]["ayat"])
@@ -364,7 +394,11 @@ for page_num in page_range:
                 number_input = str(scaled_boxes[current_box_idx]["surat"])
                 editing_surat = True
             
-            elif key == ord("w") or key == ord("p"):  # W or P for previous
+            elif key == ord("w"):  # W for edit width
+                number_input = str(scaled_boxes[current_box_idx]["width"])
+                editing_width = True
+            
+            elif key == ord("p"):  # P for previous
                 if data_choice == "2":
                     # For boxes: use RTL order
                     current_pos = rtl_order.index(current_box_idx)

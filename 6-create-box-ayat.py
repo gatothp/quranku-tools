@@ -30,7 +30,6 @@ OUTPUT:
   - JSON: bbox_ayat/p###.json - Contains complete ayah boxes with:
     * id, surat, ayat, x, y, width, height
     * image_width, image_height (for reference)
-  - Image: bbox_ayat/p###_visualization.jpg - Red rectangles showing each ayah box
   - Console: Box coordinates for each ayah
 """
 
@@ -150,40 +149,9 @@ def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
     return results
 
 
-# ── visualisation ─────────────────────────────────────────────────────────────
-
-def visualize(page_num, img, results):
-    """Draw each ayah box as a red rectangle."""
-    overlay = img.copy()
-
-    for r in results:
-        x = int(r["x"])
-        y = int(r["y"])
-        w = int(r["width"])
-        h = int(r["height"])
-        
-        # Draw red rectangle
-        cv2.rectangle(overlay, (x, y), (x + w, y + h), (0, 0, 255), 2)
-
-        # Add ayah number label
-        ayat = r.get("ayat", "?")
-        cv2.putText(overlay, str(ayat),
-                    (img.shape[1] - 40, y + 25),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.65, (200, 0, 0), 2)
-
-    vis_path = f"bbox_ayat/p{page_num:03d}_visualization.jpg"
-    if Path(vis_path).exists():
-        try:
-            Path(vis_path).unlink()
-        except Exception as e:
-            print(f"⚠️  Could not delete old visualization: {e}")
-    cv2.imwrite(vis_path, overlay)
-    print(f"📸 Visualization saved → {vis_path}")
-
-
 # ── main ──────────────────────────────────────────────────────────────────────
 
-def process_page(page_num, visualize_flag=True):
+def process_page(page_num):
     print(f"\nProcessing page {page_num} ...")
 
     boxes = load_bbox(page_num)
@@ -201,7 +169,6 @@ def process_page(page_num, visualize_flag=True):
     results = build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15)
 
     out_path = f"bbox_ayat/p{page_num:03d}.json"
-    vis_path = f"bbox_ayat/p{page_num:03d}_visualization.jpg"
 
     # Delete old JSON file to avoid lock/permission issues
     if Path(out_path).exists():
@@ -210,22 +177,12 @@ def process_page(page_num, visualize_flag=True):
         except Exception as e:
             print(f"⚠️  Could not delete {out_path}: {e}")
 
-    # Delete old visualization file
-    if Path(vis_path).exists():
-        try:
-            Path(vis_path).unlink()
-        except Exception as e:
-            print(f"⚠️  Could not delete {vis_path}: {e}")
-
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump({"page": page_num,
                    "image_width": img_w,
                    "image_height": img_h,
                    "boxes": results}, f, ensure_ascii=False, indent=2)
     print(f"💾 Saved → {out_path}")
-
-    if visualize_flag:
-        visualize(page_num, img, results)
 
     return True
 
@@ -245,5 +202,5 @@ if __name__ == "__main__":
         except Exception:
             print("❌ Invalid page number"); exit(1)
 
-    ok = sum(process_page(p, visualize_flag=True) for p in page_range)
+    ok = sum(process_page(p) for p in page_range)
     print(f"\n✅ Done: {ok}/{len(page_range)} pages → bbox_ayat/")
