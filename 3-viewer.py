@@ -68,8 +68,10 @@ else:
         print("❌ Invalid page number")
         exit(1)
 
-# Process each page
-for page_num in page_range:
+# Process pages with navigation support
+page_idx = 0
+while page_idx < len(page_range):
+    page_num = page_range[page_idx]
     IMAGE_PATH = f"D:\\apps\\android\\quran\\app\\src\\main\\assets\\files\\mushaf\\madinah_v2\\p{page_num:03d}.jpg"
     BOXES_JSON = f"{data_folder}/p{page_num:03d}.json"
     OUTPUT_JSON = f"{data_folder}/p{page_num:03d}.json"
@@ -151,6 +153,7 @@ for page_num in page_range:
     editing_surat = False
     editing_width = False
     editing_x = False
+    navigate_action = None  # Track page navigation: "prev", "next", or None
     
     # For boxes: create RTL-ordered index mapping
     rtl_order = list(range(len(scaled_boxes)))  # Default order
@@ -333,7 +336,11 @@ for page_num in page_range:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
                 cv2.putText(temp, "(S) Save", (panel_x, 310),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-                cv2.putText(temp, "(ESC) Exit", (panel_x, 330),
+                cv2.putText(temp, "(Q) Next Page", (panel_x, 330),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 100, 100), 1)
+                cv2.putText(temp, "(A) Prev Page", (panel_x, 350),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 100, 100), 1)
+                cv2.putText(temp, "(ESC) Exit", (panel_x, 370),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
             else:
                 cv2.putText(temp, "(P) Previous", (panel_x, 210),
@@ -344,7 +351,11 @@ for page_num in page_range:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
                 cv2.putText(temp, "(S) Save", (panel_x, 270),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 200, 100), 1)
-                cv2.putText(temp, "(ESC) Exit", (panel_x, 290),
+                cv2.putText(temp, "(Q) Next Page", (panel_x, 290),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 100, 100), 1)
+                cv2.putText(temp, "(A) Prev Page", (panel_x, 310),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.4, (200, 100, 100), 1)
+                cv2.putText(temp, "(ESC) Exit", (panel_x, 330),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.4, (100, 100, 200), 1)
         
         return temp
@@ -494,11 +505,69 @@ for page_num in page_range:
                     json.dump({"page": page_num, "boxes": output_boxes}, f, ensure_ascii=False, indent=2)
                 
                 print(f"✅ Saved to {OUTPUT_JSON}")
-                break
+            
+            elif key == ord("q"):  # Q - Next page
+                # Save before switching
+                output_boxes = []
+                for box in scaled_boxes:
+                    output_boxes.append({
+                        "id": box["id"],
+                        "x": int(box["x"] / scale),
+                        "y": int(box["y"] / scale),
+                        "width": int(box["width"] / scale),
+                        "height": int(box["height"] / scale),
+                        "surat": box["surat"],
+                        "ayat": box["ayat"]
+                    })
+                
+                with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+                    json.dump({"page": page_num, "boxes": output_boxes}, f, ensure_ascii=False, indent=2)
+                
+                print(f"✅ Saved to {OUTPUT_JSON}")
+                if page_idx < len(page_range) - 1:
+                    navigate_action = "next"
+                    print(f"📖 Moving to next page...")
+                    break
+                else:
+                    print(f"📖 Already on last page")
+            
+            elif key == ord("a"):  # A - Previous page
+                # Save before switching
+                output_boxes = []
+                for box in scaled_boxes:
+                    output_boxes.append({
+                        "id": box["id"],
+                        "x": int(box["x"] / scale),
+                        "y": int(box["y"] / scale),
+                        "width": int(box["width"] / scale),
+                        "height": int(box["height"] / scale),
+                        "surat": box["surat"],
+                        "ayat": box["ayat"]
+                    })
+                
+                with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+                    json.dump({"page": page_num, "boxes": output_boxes}, f, ensure_ascii=False, indent=2)
+                
+                print(f"✅ Saved to {OUTPUT_JSON}")
+                if page_idx > 0:
+                    navigate_action = "prev"
+                    print(f"📖 Moving to previous page...")
+                    break
+                else:
+                    print(f"📖 Already on first page")
             
             elif key == 27:  # ESC
                 break
     
     cv2.destroyAllWindows()
+    
+    # Handle page navigation based on user action
+    if navigate_action == "next":
+        page_idx += 1
+    elif navigate_action == "prev":
+        page_idx -= 1
+    else:
+        # Normal exit (ESC key)
+        break
 
 print(f"\n✅ Done!")
