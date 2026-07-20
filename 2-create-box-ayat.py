@@ -78,6 +78,11 @@ def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
       - prev-marker line : LEFT portion (0 → prev_x)    ← current ayah starts here
       - middle lines     : full width (0 → img_w)
       - cur-marker line  : RIGHT portion (cur_x → img_w) ← current ayah ends here (RTL tail)
+    
+    Overlap Resolution:
+    - For each line with 3+ rectangles, detect overlaps
+    - If a rectangle starts at x=0 and overlaps with longer rectangles,
+      adjust the longer rectangle by shifting it right and reducing its width
     """
     line_height = img_h / lines_per_page
 
@@ -146,6 +151,64 @@ def build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15):
                     "height": int(bottom_y - top_y),
                 })
 
+    # ── Post-process: resolve overlaps on each line ──
+    results = resolve_line_overlaps(results)
+    
+    return results
+
+
+def resolve_line_overlaps(results):
+    """
+    For each line with 3+ rectangles, detect and resolve overlaps.
+    
+    When multiple rectangles start at x=0 on the same line:
+    - Keep the shorter one at x=0
+    - Adjust longer ones: shift right to x = shorter.width + 1
+    - Reduce their width by the amount shifted
+    
+    Example:
+    Box A: x=0, width=100 (shorter)
+    Box B: x=0, width=200 (longer)
+    Result:
+    Box A: x=0, width=100 (unchanged)
+    Box B: x=101, width=99
+    """
+    from collections import defaultdict
+    
+    # Group rectangles by line (y coordinate)
+    lines = defaultdict(list)
+    for idx, box in enumerate(results):
+        lines[int(box["y"])].append(idx)
+    
+    # Process each line with 3+ rectangles
+    for line_y, box_indices in lines.items():
+        if len(box_indices) < 3:
+            continue
+        
+        # Get all boxes on this line, sorted by x position, then by width (ascending)
+        line_boxes = [(idx, results[idx]) for idx in box_indices]
+        line_boxes.sort(key=lambda item: (item[1]["x"], item[1]["width"]))
+        
+        # Process boxes starting at x=0
+        boxes_at_zero = [item for item in line_boxes if item[1]["x"] == 0]
+        
+        if len(boxes_at_zero) > 1:
+            # Multiple boxes start at x=0
+            # Keep the first (shortest) at x=0, adjust others
+            for i in range(1, len(boxes_at_zero)):
+                idx, box = boxes_at_zero[i]
+                
+                # Calculate cumulative width of all shorter boxes
+                shorter_total_width = sum(boxes_at_zero[j][1]["width"] for j in range(i))
+                
+                # Adjust this box
+                new_x = shorter_total_width + 1
+                new_width = box["width"] - shorter_total_width - 1
+                
+                if new_width > 0:
+                    results[idx]["x"] = int(new_x)
+                    results[idx]["width"] = int(new_width)
+    
     return results
 
 
