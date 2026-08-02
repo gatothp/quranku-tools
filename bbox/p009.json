@@ -3,37 +3,37 @@
   "boxes": [
     {
       "id": 1,
-      "x": 268,
-      "y": 287,
-      "width": 98,
-      "height": 98,
+      "x": 266,
+      "y": 285,
+      "width": 97,
+      "height": 97,
       "surat": 2,
       "ayat": 58
     },
     {
       "id": 2,
-      "x": 279,
-      "y": 544,
-      "width": 98,
-      "height": 98,
+      "x": 278,
+      "y": 542,
+      "width": 97,
+      "height": 97,
       "surat": 2,
       "ayat": 59
     },
     {
       "id": 3,
-      "x": -2,
-      "y": 938,
-      "width": 98,
-      "height": 98,
+      "x": 0,
+      "y": 936,
+      "width": 97,
+      "height": 97,
       "surat": 2,
       "ayat": 60
     },
     {
       "id": 4,
-      "x": -13,
-      "y": 1847,
-      "width": 98,
-      "height": 98,
+      "x": -12,
+      "y": 1846,
+      "width": 97,
+      "height": 97,
       "surat": 2,
       "ayat": 61
     }

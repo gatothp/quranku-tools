@@ -17,12 +17,15 @@ def combine_bbox_ayat():
     
     # Extract page numbers from filenames
     available_pages = [int(f.stem[1:]) for f in json_files]
-    print(f"Available pages: {min(available_pages)} - {max(available_pages)}")
     
     # Get user input for page range
     while True:
         try:
-            range_input = input(f"Enter page range ({min(available_pages)}-{max(available_pages)}) e.g., 603-604: ")
+            range_input = input(f"Enter page range ({min(available_pages)}-{max(available_pages)}) [default: {min(available_pages)}-{max(available_pages)}]: ").strip()
+            
+            # Use default if empty input
+            if not range_input:
+                range_input = f"{min(available_pages)}-{max(available_pages)}"
             
             if '-' not in range_input:
                 print("Please enter range in format: start-end (e.g., 603-604)")
@@ -61,8 +64,6 @@ def combine_bbox_ayat():
                     print(f"Added p{page_num:03d}.json ({page_key})")
             except json.JSONDecodeError:
                 print(f"Error: Could not decode p{page_num:03d}.json")
-        else:
-            print(f"File p{page_num:03d}.json not found, skipping.")
     
     # Write combined data to output file
     output_path = bbox_ayat_dir / "bbox.json"
