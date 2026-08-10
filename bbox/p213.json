@@ -1,0 +1,86 @@
+{
+  "page": 213,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 517,
+      "y": 157,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 34
+    },
+    {
+      "id": 2,
+      "x": -8,
+      "y": 417,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 35
+    },
+    {
+      "id": 3,
+      "x": 630,
+      "y": 680,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 36
+    },
+    {
+      "id": 4,
+      "x": 540,
+      "y": 938,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 37
+    },
+    {
+      "id": 5,
+      "x": 1103,
+      "y": 1197,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 38
+    },
+    {
+      "id": 6,
+      "x": -10,
+      "y": 1327,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 39
+    },
+    {
+      "id": 7,
+      "x": 857,
+      "y": 1590,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 40
+    },
+    {
+      "id": 8,
+      "x": 199,
+      "y": 1723,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 41
+    },
+    {
+      "id": 9,
+      "x": -8,
+      "y": 1847,
+      "width": 98,
+      "height": 98,
+      "surat": 10,
+      "ayat": 42
+    }
+  ]
+}

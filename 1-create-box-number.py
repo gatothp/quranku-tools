@@ -118,7 +118,7 @@ for page_num in page_range:
                 if start_ayat and end_ayat:
                     ayat_range.append((surat, int(start_ayat), int(end_ayat)))
         
-        print(f"✅ Page {page_num} ayat ranges: {ayat_range}")
+        # print(f"✅ Page {page_num} ayat ranges: {ayat_range}")
     except Exception as e:
         print(f"⚠️  Could not load ayat ranges from Excel: {e}")
     
@@ -215,9 +215,9 @@ for page_num in page_range:
     
     if expected_ayat:
         if len(results) == expected_ayat:
-            print(f"✅ Validation: {len(results)} detected (matches {expected_ayat} ayat)")
+            print(f"✅ Page {page_num}: {len(results)} detected")
         else:
-            print(f"⚠️  Validation: {len(results)} detected but {expected_ayat} ayat expected")
+            print(f"⚠️ Page {page_num}: {len(results)} detected but {expected_ayat} ayat expected")
     else:
         print(f"ℹ️  {len(results)} circles detected")
     

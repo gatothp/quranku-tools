@@ -1,0 +1,41 @@
+{
+  "page": 110,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 529,
+      "y": 423,
+      "width": 98,
+      "height": 98,
+      "surat": 5,
+      "ayat": 14
+    },
+    {
+      "id": 2,
+      "x": -9,
+      "y": 815,
+      "width": 98,
+      "height": 98,
+      "surat": 5,
+      "ayat": 15
+    },
+    {
+      "id": 3,
+      "x": 281,
+      "y": 1204,
+      "width": 98,
+      "height": 98,
+      "surat": 5,
+      "ayat": 16
+    },
+    {
+      "id": 4,
+      "x": -3,
+      "y": 1854,
+      "width": 98,
+      "height": 98,
+      "surat": 5,
+      "ayat": 17
+    }
+  ]
+}

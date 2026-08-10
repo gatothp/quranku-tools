@@ -32,7 +32,17 @@ OUTPUT:
 import cv2
 import json
 import os
+import ctypes
 import openpyxl
+
+
+def get_screen_width():
+    """Get primary screen width in pixels (Windows)."""
+    try:
+        user32 = ctypes.windll.user32
+        return user32.GetSystemMetrics(0)
+    except Exception:
+        return 1920  # Fallback default
 
 # Prompt for data source
 data_choice = input("Pilih data (1-circle, 2-box) [default: 1]: ").strip()
@@ -77,7 +87,7 @@ while page_idx < len(page_range):
     OUTPUT_JSON = f"{data_folder}/p{page_num:03d}.json"
     EXCEL_PATH = "files/quran.xlsx"
     
-    print(f"\n✏️  Editing page {page_num}...")
+  #  print(f"\n✏️  Editing page {page_num}...")
     
     # Load and validate against Excel (only for circles)
     expected_ayat = None
@@ -360,14 +370,18 @@ while page_idx < len(page_range):
         
         return temp
     
-    cv2.namedWindow(f"Circle Editor - Page {page_num}")
-    
+    window_name = f"Circle Editor - Page {page_num}"
+    cv2.namedWindow(window_name)
+
+    # Position window at top-right of screen
+    window_width = new_width + panel_width
+    screen_width = get_screen_width()
+    cv2.moveWindow(window_name, max(screen_width - window_width, 0), 0)
+
     item_type = "circles" if data_choice == "1" else "rectangles"
-    print(f"✅ Loaded {len(scaled_boxes)} {item_type}")
-    print()
     
     while True:
-        cv2.imshow(f"Circle Editor - Page {page_num}", draw_boxes())
+        cv2.imshow(window_name, draw_boxes())
         key = cv2.waitKey(1) & 0xFF
         
         if confirming_delete:
