@@ -1,0 +1,131 @@
+{
+  "page": 303,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 194,
+      "y": 30,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 84
+    },
+    {
+      "id": 2,
+      "x": 1100,
+      "y": 157,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 85
+    },
+    {
+      "id": 4,
+      "x": 876,
+      "y": 421,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 86
+    },
+    {
+      "id": 5,
+      "x": 709,
+      "y": 551,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 87
+    },
+    {
+      "id": 6,
+      "x": 442,
+      "y": 682,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 88
+    },
+    {
+      "id": 7,
+      "x": 103,
+      "y": 682,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 89
+    },
+    {
+      "id": 10,
+      "x": 861,
+      "y": 940,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 90
+    },
+    {
+      "id": 11,
+      "x": 78,
+      "y": 943,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 91
+    },
+    {
+      "id": 12,
+      "x": 879,
+      "y": 1073,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 92
+    },
+    {
+      "id": 13,
+      "x": 582,
+      "y": 1206,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 93
+    },
+    {
+      "id": 14,
+      "x": 670,
+      "y": 1461,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 94
+    },
+    {
+      "id": 15,
+      "x": 545,
+      "y": 1588,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 95
+    },
+    {
+      "id": 16,
+      "x": 997,
+      "y": 1852,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 96
+    },
+    {
+      "id": 17,
+      "x": -3,
+      "y": 1852,
+      "width": 97,
+      "height": 97,
+      "surat": 18,
+      "ayat": 97
+    }
+  ]
+}

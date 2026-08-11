@@ -1,0 +1,131 @@
+{
+  "page": 306,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 0,
+      "y": 28,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 12
+    },
+    {
+      "id": 2,
+      "x": 348,
+      "y": 159,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 13
+    },
+    {
+      "id": 3,
+      "x": 721,
+      "y": 291,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 14
+    },
+    {
+      "id": 4,
+      "x": 758,
+      "y": 421,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 15
+    },
+    {
+      "id": 5,
+      "x": 594,
+      "y": 550,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 16
+    },
+    {
+      "id": 6,
+      "x": 188,
+      "y": 681,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 17
+    },
+    {
+      "id": 7,
+      "x": 397,
+      "y": 811,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 18
+    },
+    {
+      "id": 8,
+      "x": 440,
+      "y": 941,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 19
+    },
+    {
+      "id": 9,
+      "x": 332,
+      "y": 1073,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 20
+    },
+    {
+      "id": 10,
+      "x": 541,
+      "y": 1332,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 21
+    },
+    {
+      "id": 11,
+      "x": 820,
+      "y": 1462,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 22
+    },
+    {
+      "id": 12,
+      "x": -1,
+      "y": 1589,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 23
+    },
+    {
+      "id": 13,
+      "x": -4,
+      "y": 1721,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 24
+    },
+    {
+      "id": 14,
+      "x": -3,
+      "y": 1851,
+      "width": 98,
+      "height": 98,
+      "surat": 19,
+      "ayat": 25
+    }
+  ]
+}
