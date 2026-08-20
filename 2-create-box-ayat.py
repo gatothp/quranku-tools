@@ -215,7 +215,7 @@ def resolve_line_overlaps(results):
 # ── main ──────────────────────────────────────────────────────────────────────
 
 def process_page(page_num):
-    print(f"\nProcessing page {page_num} ...")
+    print(f"Page {page_num}: ")
 
     boxes = load_bbox(page_num)
     if boxes is None:
@@ -227,7 +227,7 @@ def process_page(page_num):
         return False
 
     img_h, img_w = img.shape[:2]
-    print(f"   Image: {img_w}×{img_h}  |  Markers: {len(boxes)}")
+    print(f"   Markers: {len(boxes)}")
 
     results = build_ayah_boxes(boxes, img_h, img_w, lines_per_page=15)
 
@@ -245,7 +245,7 @@ def process_page(page_num):
                    "image_width": img_w,
                    "image_height": img_h,
                    "boxes": results}, f, ensure_ascii=False, indent=2)
-    print(f"💾 Saved → {out_path}")
+#    print(f"💾 Saved → {out_path}")
 
     return True
 

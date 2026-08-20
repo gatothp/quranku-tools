@@ -1,0 +1,140 @@
+{
+  "page": 348,
+  "boxes": [
+    {
+      "id": 1,
+      "x": 321,
+      "y": 24,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 90
+    },
+    {
+      "id": 2,
+      "x": -6,
+      "y": 285,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 91
+    },
+    {
+      "id": 3,
+      "x": 162,
+      "y": 416,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 92
+    },
+    {
+      "id": 4,
+      "x": 672,
+      "y": 544,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 93
+    },
+    {
+      "id": 5,
+      "x": 1105,
+      "y": 675,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 94
+    },
+    {
+      "id": 6,
+      "x": 191,
+      "y": 676,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 95
+    },
+    {
+      "id": 7,
+      "x": 186,
+      "y": 808,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 96
+    },
+    {
+      "id": 8,
+      "x": 394,
+      "y": 938,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 97
+    },
+    {
+      "id": 9,
+      "x": 888,
+      "y": 1064,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 98
+    },
+    {
+      "id": 10,
+      "x": 917,
+      "y": 1196,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 99
+    },
+    {
+      "id": 11,
+      "x": -4,
+      "y": 1326,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 100
+    },
+    {
+      "id": 12,
+      "x": 1103,
+      "y": 1586,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 101
+    },
+    {
+      "id": 13,
+      "x": 84,
+      "y": 1587,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 102
+    },
+    {
+      "id": 14,
+      "x": 909,
+      "y": 1847,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 103
+    },
+    {
+      "id": 15,
+      "x": 2,
+      "y": 1849,
+      "width": 98,
+      "height": 98,
+      "surat": 23,
+      "ayat": 104
+    }
+  ]
+}

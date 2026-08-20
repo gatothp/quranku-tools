@@ -540,7 +540,7 @@ while page_idx < len(page_range):
                 print(f"✅ Saved to {OUTPUT_JSON}")
                 if page_idx < len(page_range) - 1:
                     navigate_action = "next"
-                    print(f"📖 Moving to next page...")
+                    # print(f"📖 Moving to next page...")
                     break
                 else:
                     print(f"📖 Already on last page")
